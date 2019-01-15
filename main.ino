@@ -6,68 +6,81 @@ int IN3 = A3;
 int IN4 = A4;
 int RPW = 6;
 int LPW = 5;
-unsigned char serial_input_value;
+int USI = 7;
+int USO = 8;
+unsigned char serialValue;
+MotorPins motorPins;
+HeadPins headPins;
+Robotych* robotych;
 
-Robotych robotych;
+long outCounter = 0;
 
 void setup()
 {
-  robotych.setRBPin(IN1);
-  robotych.setRFPin(IN2);
-  robotych.setLFPin(IN3);
-  robotych.setLBPin(IN4);
-  robotych.setRPWPin(RPW);
-  robotych.setLPWPin(LPW);
-  robotych.speed(130, 130);
+  motorPins.rightBack = IN1;
+  motorPins.rightFront = IN2;
+  motorPins.leftFront = IN3;
+  motorPins.leftBack = IN4;
+  motorPins.rightPower = RPW;
+  motorPins.leftPower = LPW;
+  headPins.distanceInput = USI;
+  headPins.distanceOutput = USO;
+  robotych = new Robotych(motorPins, headPins);
+  robotych->speed(130, 130);
   Serial.begin(9600);
 }
 
 // TODO:
-// - create states for robotych
-// - add checker function - if too close(or sensor value is too high) - stop
 // - add dance function
 
 void loop()
 {
+  if (outCounter > 1000)
+  {
+    robotych->averageDistance(5);
+    if (robotych->distanceLessThan(20) && robotych->isMovingForward())
+    {
+      robotych->motorState.controlState = ControlState::SelfControl;
+      robotych->stop();
+      Serial.println(robotych->headState.distance);
+    }
+    outCounter = 0;
+  }
+  outCounter++;
   if (Serial.available())
   {
-    serial_input_value = Serial.read();
-    switch (serial_input_value)
+    serialValue = Serial.read();
+    robotych->motorState.controlState = ControlState::UserControl;
+    switch (serialValue)
     {
     case 'U':
-      robotych.forward();
+      robotych->forward();
       break;
     case 'D':
-      robotych.back();
+      robotych->back();
       break;
     case 'L':
-      robotych.left();
+      robotych->left();
       break;
     case 'R':
-      robotych.right();
+      robotych->right();
       break;
     case 'S':
-      robotych.stop();
+      robotych->stop();
       break;
-    case 'F':
-      robotych.faster();
+    case 'Q':
+      robotych->leftFaster();
       break;
     case 'Z':
-      robotych.slower();
+      robotych->leftSlower();
       break;
-    case 'A':
-      robotych.leftForward();
-      break;
-    case 'B':
-      robotych.leftBack();
+    case 'E':
+      robotych->rightFaster();
       break;
     case 'C':
-      robotych.rightForward();
-      break;
-    case 'V':
-      robotych.rightBack();
+      robotych->rightSlower();
       break;
     }
-    Serial.println((char) serial_input_value);
+    // Serial.println((char) serialValue);
   }
 }

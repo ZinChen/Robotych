@@ -3,18 +3,82 @@
 
 #include "Arduino.h"
 
-// TODO: add state constants
+struct MotorPins
+{
+  int leftFront;
+  int leftBack;
+  int rightFront;
+  int rightBack;
+  int leftPower;
+  int rightPower;
+};
+
+struct HeadPins
+{
+  int distanceInput;
+  int distanceOutput;
+  int servo;
+};
+
+
+enum class MotorPairState
+{
+  Stop,
+  Forward,
+  Backward,
+};
+
+enum class ControlState
+{
+  SelfControl,
+  UserControl,
+};
+
+struct MotorState
+{
+  MotorPairState leftMotorState;
+  MotorPairState rightMotorState;
+  ControlState controlState;
+  int leftMotorPower;
+  int rightMotorPower;
+  int motorPowerStep;
+};
+
+
+enum class UltrasonicState
+{
+  WaitingServo,
+  MeasureInProgress,
+  MeasureCompleted
+};
+
+struct HeadState
+{
+  int servoAngle;
+  int ultrasonicUnknownLimit;
+  long distance;
+  UltrasonicState ultrasonicState;
+};
+
+
+struct CurrentMove
+{
+  int moveDuration;
+  char moveName;
+};
+
+struct CurrentState
+{
+  CurrentMove currentMove;
+  int moveStartTime;
+  int moveIndex;
+};
+
 
 class Robotych
 {
   public:
-    Robotych();
-    void setLBPin(int pin);
-    void setLFPin(int pin);
-    void setRBPin(int pin);
-    void setRFPin(int pin);
-    void setRPWPin(int pin);
-    void setLPWPin(int pin);
+    Robotych(MotorPins, HeadPins);
     void forward();
     void back();
     void left();
@@ -24,18 +88,26 @@ class Robotych
     void leftBack();
     void rightForward();
     void rightBack();
+    void leftStop();
+    void rightStop();
     void speed(int lpw, int rpw);
-    void faster();
+    void rightFaster();
+    void leftFaster();
+    void leftSlower();
+    void rightSlower();
     void slower();
+    bool isMovingForward();
+    long measureDistance();
+    long averageDistance(int);
+    bool distanceLessThan(int);
+    bool distanceUnknown();
+    void updateCurrentMove();
+    MotorState motorState;
+    HeadState headState;
+    CurrentState currentState;
   private:
-    int _LBPin;
-    int _LFPin;
-    int _RBPin;
-    int _RFPin;
-    int _RPWPin;
-    int _LPWPin;
-    int _LPWM;
-    int _RPWM;
+    MotorPins _motorPins;
+    HeadPins _headPins;
 };
 
 struct RobotychAction
