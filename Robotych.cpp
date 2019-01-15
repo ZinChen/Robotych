@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "Robotych.h"
 
 Robotych::Robotych(MotorPins motorPins, HeadPins headPins)
@@ -39,14 +38,14 @@ void Robotych::back(void)
 
 void Robotych::left(void)
 {
-  speed(motorState.leftMotorPower * 0.6, motorState.rightMotorPower * 0.6);
+  speed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
   leftBack();
   rightForward();
 }
 
 void Robotych::right(void)
 {
-  speed(motorState.leftMotorPower * 0.6, motorState.rightMotorPower * 0.6);
+  speed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
   leftForward();
   rightBack();
 }
@@ -104,10 +103,15 @@ void Robotych::rightStop(void)
 
 // Speed Control
 
-void Robotych::speed(int left, int right)
+void Robotych::defaultSpeed(int left, int right)
 {
   motorState.leftMotorPower = left;
   motorState.rightMotorPower = right;
+  speed(left, right);
+}
+
+void Robotych::speed(int left, int right)
+{
   analogWrite(_motorPins.leftPower, motorState.leftMotorPower);
   analogWrite(_motorPins.rightPower, motorState.rightMotorPower);
 }
@@ -155,12 +159,12 @@ long Robotych::measureDistance()
   delayMicroseconds(10);
   digitalWrite(_headPins.distanceOutput, LOW);
   delayMicroseconds(2);
-  long duration = pulseIn(_headPins.distanceInput, HIGH);
+  long duration = pulseIn(_headPins.distanceInput, HIGH, 20000L);
   headState.distance = duration / 58.82;
   return headState.distance;
 }
 
-long Robotych::averageDistance(int times = 5)
+long Robotych::averageDistance(int times)
 {
   int result = 0;
   for (int i = 0; i < times; i++)

@@ -13,7 +13,17 @@ MotorPins motorPins;
 HeadPins headPins;
 Robotych* robotych;
 
-long outCounter = 0;
+unsigned long checkDistanceTimePeriod = 100;
+unsigned long lastDistanceCheckTime = 0;
+unsigned long time;
+
+void measureTimeInterval(String name)
+{
+  unsigned long currentTime = millis();
+  unsigned long interval = currentTime - time;
+  time = currentTime;
+  Serial.println("Timer since last" + name + ": " + interval);
+}
 
 void setup()
 {
@@ -26,7 +36,7 @@ void setup()
   headPins.distanceInput = USI;
   headPins.distanceOutput = USO;
   robotych = new Robotych(motorPins, headPins);
-  robotych->speed(130, 130);
+  robotych->defaultSpeed(130, 130);
   Serial.begin(9600);
 }
 
@@ -35,18 +45,23 @@ void setup()
 
 void loop()
 {
-  if (outCounter > 1000)
+  unsigned long currentTime = millis();
+  if (currentTime - lastDistanceCheckTime > checkDistanceTimePeriod)
   {
-    robotych->averageDistance(5);
-    if (robotych->distanceLessThan(20) && robotych->isMovingForward())
+    robotych->averageDistance(3);
+    if (robotych->distanceLessThan(40) && robotych->isMovingForward())
     {
       robotych->motorState.controlState = ControlState::SelfControl;
       robotych->stop();
+      Serial.print("Stopped on distance: ");
       Serial.println(robotych->headState.distance);
     }
-    outCounter = 0;
+    // measureTimeInterval("measure distance");
+    // Serial.print("Current distance: ");
+    // Serial.println(robotych->headState.distance);
+    lastDistanceCheckTime = currentTime;
   }
-  outCounter++;
+
   if (Serial.available())
   {
     serialValue = Serial.read();

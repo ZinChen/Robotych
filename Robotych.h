@@ -90,6 +90,7 @@ class Robotych
     void rightBack();
     void leftStop();
     void rightStop();
+    void defaultSpeed(int lpw, int rpw);
     void speed(int lpw, int rpw);
     void rightFaster();
     void leftFaster();
