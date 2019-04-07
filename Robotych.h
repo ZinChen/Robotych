@@ -32,6 +32,7 @@ enum class ControlState
 {
   SelfControl,
   UserControl,
+  MoveControl,
 };
 
 struct MotorState
@@ -60,20 +61,23 @@ struct HeadState
   UltrasonicState ultrasonicState;
 };
 
-
-struct CurrentMove
+struct ActionState
 {
-  int moveDuration;
-  char moveName;
+  int actionDuration;
+  MotorPairState leftMotorPairState;
+  MotorPairState rightMotorPairState;
+  int leftMotorPower;
+  int rightMotorPower;
+  char actionName[30];
 };
 
 struct CurrentState
 {
-  CurrentMove currentMove;
-  int moveStartTime;
-  int moveIndex;
+  ActionState currentAction;
+  unsigned long actionStartTime;
+  int actionIndex;
+  int actionsCount;
 };
-
 
 class Robotych
 {
@@ -85,13 +89,15 @@ class Robotych
     void right();
     void stop();
     void leftForward();
-    void leftBack();
+    void leftBackward();
     void rightForward();
-    void rightBack();
+    void rightBackward();
     void leftStop();
     void rightStop();
+    void applyMotorState();
     void defaultSpeed(int lpw, int rpw);
-    void speed(int lpw, int rpw);
+    void applySpeed();
+    void applyCustomSpeed(int lpw, int rpw);
     void rightFaster();
     void leftFaster();
     void leftSlower();
@@ -102,19 +108,16 @@ class Robotych
     long averageDistance(int);
     bool distanceLessThan(int);
     bool distanceUnknown();
-    void updateCurrentMove();
+    void checkAndUpdateCurrentAction();
+    void startActionSequence(ActionState[], int);
+    void initCurrentAction();
     MotorState motorState;
     HeadState headState;
     CurrentState currentState;
+    ActionState *actionSequence;
   private:
     MotorPins _motorPins;
     HeadPins _headPins;
-};
-
-struct RobotychAction
-{
-  char action;
-  int duration;
 };
 
 #endif

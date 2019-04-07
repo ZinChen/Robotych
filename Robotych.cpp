@@ -7,6 +7,7 @@ Robotych::Robotych(MotorPins motorPins, HeadPins headPins)
   motorState.rightMotorState = MotorPairState::Stop;
   motorState.controlState = ControlState::UserControl;
   headState.ultrasonicUnknownLimit = 2000;
+  currentState.actionsCount = 0;
 
   _motorPins = motorPins;
   pinMode(_motorPins.leftFront, OUTPUT);
@@ -19,40 +20,42 @@ Robotych::Robotych(MotorPins motorPins, HeadPins headPins)
   pinMode(_headPins.distanceOutput, OUTPUT);
 
   _headPins = headPins;
+
+  applyMotorState();
 }
 
 // Basic movements
 void Robotych::forward(void)
 {
-  speed(motorState.leftMotorPower, motorState.rightMotorPower);
+  applySpeed();
   leftForward();
   rightForward();
 }
 
 void Robotych::back(void)
 {
-  speed(motorState.leftMotorPower, motorState.rightMotorPower);
-  leftBack();
-  rightBack();
+  applySpeed();
+  leftBackward();
+  rightBackward();
 }
 
 void Robotych::left(void)
 {
-  speed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
-  leftBack();
+  applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
+  leftBackward();
   rightForward();
 }
 
 void Robotych::right(void)
 {
-  speed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
+  applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
   leftForward();
-  rightBack();
+  rightBackward();
 }
 
 void Robotych::stop(void)
 {
-  speed(motorState.leftMotorPower, motorState.rightMotorPower);
+  // applySpeed();
   leftStop();
   rightStop();
 }
@@ -66,7 +69,7 @@ void Robotych::leftForward(void)
   motorState.leftMotorState = MotorPairState::Forward;
 }
 
-void Robotych::leftBack(void)
+void Robotych::leftBackward(void)
 {
   digitalWrite(_motorPins.leftFront, LOW);
   digitalWrite(_motorPins.leftBack, HIGH);
@@ -80,7 +83,7 @@ void Robotych::rightForward(void)
   motorState.rightMotorState = MotorPairState::Forward;
 }
 
-void Robotych::rightBack(void)
+void Robotych::rightBackward(void)
 {
   digitalWrite(_motorPins.rightFront, LOW);
   digitalWrite(_motorPins.rightBack, HIGH);
@@ -101,47 +104,82 @@ void Robotych::rightStop(void)
   motorState.rightMotorState = MotorPairState::Stop;
 }
 
+void Robotych::applyMotorState(void)
+{
+  switch (motorState.rightMotorState)
+  {
+    case MotorPairState::Forward:
+      rightForward();
+      break;
+    case MotorPairState::Backward:
+      rightBackward();
+      break;
+    case MotorPairState::Stop:
+      rightStop();
+      break;
+  }
+
+  switch (motorState.leftMotorState)
+  {
+    case MotorPairState::Forward:
+      leftForward();
+      break;
+    case MotorPairState::Backward:
+      leftBackward();
+      break;
+    case MotorPairState::Stop:
+      leftStop();
+      break;
+  }
+}
+
 // Speed Control
 
 void Robotych::defaultSpeed(int left, int right)
 {
   motorState.leftMotorPower = left;
   motorState.rightMotorPower = right;
-  speed(left, right);
+  applySpeed();
 }
 
-void Robotych::speed(int left, int right)
+void Robotych::applySpeed(void)
 {
   analogWrite(_motorPins.leftPower, motorState.leftMotorPower);
   analogWrite(_motorPins.rightPower, motorState.rightMotorPower);
+}
+
+void Robotych::applyCustomSpeed(int left, int right)
+{
+  analogWrite(_motorPins.leftPower, left);
+  analogWrite(_motorPins.rightPower, right);
 }
 
 void Robotych::leftFaster()
 {
   motorState.leftMotorPower += motorState.motorPowerStep;
   motorState.leftMotorPower = motorState.leftMotorPower > 255 ? 255 : motorState.leftMotorPower;
-  analogWrite(_motorPins.leftPower, motorState.leftMotorPower);
+  applySpeed();
 }
 
 void Robotych::rightFaster()
 {
   motorState.rightMotorPower += motorState.motorPowerStep;
   motorState.rightMotorPower = motorState.rightMotorPower > 255 ? 255 : motorState.rightMotorPower;
-  analogWrite(_motorPins.rightPower, motorState.rightMotorPower);
+  applySpeed();
 }
 
 void Robotych::leftSlower()
 {
   motorState.leftMotorPower -= motorState.motorPowerStep;
   motorState.leftMotorPower = motorState.leftMotorPower > 0 ? motorState.leftMotorPower : 0;
-  analogWrite(_motorPins.leftPower, motorState.leftMotorPower);
+  applySpeed();
 }
 
 void Robotych::rightSlower()
 {
   motorState.rightMotorPower -= motorState.motorPowerStep;
   motorState.rightMotorPower = motorState.rightMotorPower > 0 ? motorState.rightMotorPower : 0;
-  analogWrite(_motorPins.rightPower, motorState.rightMotorPower);
+  applySpeed();
 }
 
 /*
@@ -199,4 +237,57 @@ bool Robotych::isMovingForward()
 {
   return motorState.leftMotorState == MotorPairState::Forward
     && motorState.rightMotorState == MotorPairState::Forward;
+}
+
+void Robotych::startActionSequence(ActionState *actionState, int length)
+{
+  actionSequence = actionState;
+  currentState.actionIndex = 0;
+  currentState.actionsCount = length;
+  motorState.controlState = ControlState::SelfControl;
+  initCurrentAction();
+  Serial.print("Actions count: ");
+  Serial.println(currentState.actionsCount);
+}
+
+void Robotych::checkAndUpdateCurrentAction()
+{
+  unsigned long passedTime = millis() - currentState.actionStartTime;
+  unsigned long duration = currentState.currentAction.actionDuration;
+
+  if (passedTime >= duration) {
+    if (currentState.actionIndex + 1 < currentState.actionsCount) {
+      currentState.actionIndex++;
+      initCurrentAction();
+    } else {
+      currentState.actionIndex = -1;
+      currentState.actionStartTime = -1;
+      currentState.actionsCount = 0;
+      motorState.controlState = ControlState::UserControl;
+      motorState.leftMotorState = MotorPairState::Stop;
+      motorState.rightMotorState = MotorPairState::Stop;
+      applySpeed();
+      applyMotorState();
+      Serial.println("Finish action sequence");
+    }
+  }
+}
+
+void Robotych::initCurrentAction()
+{
+  currentState.actionStartTime = millis();
+  currentState.currentAction = actionSequence[currentState.actionIndex];
+  motorState.leftMotorState = currentState.currentAction.leftMotorPairState;
+  motorState.rightMotorState = currentState.currentAction.rightMotorPairState;
+  applyCustomSpeed(currentState.currentAction.leftMotorPower, currentState.currentAction.rightMotorPower);
+  applyMotorState();
+
+  Serial.print("New action: ");
+  Serial.print("currentActionName: ");
+  Serial.println(currentState.currentAction.actionName);
+  Serial.print("currentState.actionIndex: ");
+  Serial.println(currentState.actionIndex);
+  Serial.print("currentState.currentActionDuration: ");
+  Serial.println(currentState.currentAction.actionDuration);
+  Serial.println("");
 }

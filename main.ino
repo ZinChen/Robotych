@@ -17,6 +17,26 @@ unsigned long checkDistanceTimePeriod = 100;
 unsigned long lastDistanceCheckTime = 0;
 unsigned long time;
 
+ActionState testActionState = {
+  500,
+  MotorPairState::Forward,
+  MotorPairState::Backward,
+  150,
+  150,
+  "Test"
+};
+
+ActionState testActionState2 = {
+  500,
+  MotorPairState::Backward,
+  MotorPairState::Forward,
+  150,
+  150,
+  "Test2"
+};
+
+ActionState testActionSequence[4];
+
 void measureTimeInterval(String name)
 {
   unsigned long currentTime = millis();
@@ -38,13 +58,21 @@ void setup()
   robotych = new Robotych(motorPins, headPins);
   robotych->defaultSpeed(130, 130);
   Serial.begin(9600);
+  delay(1000);
+  testActionSequence[0] = testActionState;
+  testActionSequence[1] = testActionState2;
+  testActionSequence[2] = testActionState;
+  testActionSequence[3] = testActionState2;
 }
-
-// TODO:
-// - add dance function
 
 void loop()
 {
+  delay(100);
+
+  if (robotych->currentState.actionsCount > 0 && robotych->motorState.controlState == ControlState::SelfControl) {
+    robotych->checkAndUpdateCurrentAction();
+  }
+
   unsigned long currentTime = millis();
   if (currentTime - lastDistanceCheckTime > checkDistanceTimePeriod)
   {
@@ -65,7 +93,7 @@ void loop()
   if (Serial.available())
   {
     serialValue = Serial.read();
-    robotych->motorState.controlState = ControlState::UserControl;
+    bool isUserControl = true;
     switch (serialValue)
     {
     case 'U':
@@ -95,7 +123,18 @@ void loop()
     case 'C':
       robotych->rightSlower();
       break;
+    case 'W':
+      Serial.println("Starting sequence");
+      robotych->startActionSequence(testActionSequence, sizeof(testActionSequence)/sizeof(*testActionSequence));
+      isUserControl = false;
+      break;
+    default:
+      isUserControl = false;
+      break;
     }
-    // Serial.println((char) serialValue);
+    if (isUserControl) {
+      robotych->motorState.controlState = ControlState::UserControl;
+    }
+    Serial.println((char) serialValue);
   }
 }
