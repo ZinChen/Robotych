@@ -11,7 +11,7 @@ int USO = 8;
 unsigned char serialValue;
 MotorPins motorPins;
 HeadPins headPins;
-Robotych* robotych;
+Robotych * robotych;
 
 unsigned long checkDistanceTimePeriod = 100;
 unsigned long lastDistanceCheckTime = 0;
@@ -56,7 +56,7 @@ void setup()
   headPins.distanceInput = USI;
   headPins.distanceOutput = USO;
   robotych = new Robotych(motorPins, headPins);
-  robotych->defaultSpeed(130, 130);
+  robotych->roboMotors->defaultSpeed(130, 130);
   Serial.begin(9600);
   delay(1000);
   testActionSequence[0] = testActionState;
@@ -69,20 +69,20 @@ void loop()
 {
   delay(100);
 
-  if (robotych->currentState.actionsCount > 0 && robotych->motorState.controlState == ControlState::SelfControl) {
+  if (robotych->currentState.actionsCount > 0 && robotych->roboMotors->motorState.controlState == ControlState::SelfControl) {
     robotych->checkAndUpdateCurrentAction();
   }
 
   unsigned long currentTime = millis();
   if (currentTime - lastDistanceCheckTime > checkDistanceTimePeriod)
   {
-    robotych->averageDistance(3);
-    if (robotych->distanceLessThan(40) && robotych->isMovingForward())
+    robotych->roboHead->averageDistance(3);
+    if (robotych->roboHead->distanceLessThan(40) && robotych->roboMotors->isMovingForward())
     {
-      robotych->motorState.controlState = ControlState::SelfControl;
-      robotych->stop();
+      robotych->roboMotors->motorState.controlState = ControlState::SelfControl;
+      robotych->roboMotors->stop();
       Serial.print("Stopped on distance: ");
-      Serial.println(robotych->headState.distance);
+      Serial.println(robotych->roboHead->headState.distance);
     }
     // measureTimeInterval("measure distance");
     // Serial.print("Current distance: ");
@@ -97,31 +97,31 @@ void loop()
     switch (serialValue)
     {
     case 'U':
-      robotych->forward();
+      robotych->roboMotors->forward();
       break;
     case 'D':
-      robotych->back();
+      robotych->roboMotors->back();
       break;
     case 'L':
-      robotych->left();
+      robotych->roboMotors->left();
       break;
     case 'R':
-      robotych->right();
+      robotych->roboMotors->right();
       break;
     case 'S':
-      robotych->stop();
+      robotych->roboMotors->stop();
       break;
     case 'Q':
-      robotych->leftFaster();
+      robotych->roboMotors->leftFaster();
       break;
     case 'Z':
-      robotych->leftSlower();
+      robotych->roboMotors->leftSlower();
       break;
     case 'E':
-      robotych->rightFaster();
+      robotych->roboMotors->rightFaster();
       break;
     case 'C':
-      robotych->rightSlower();
+      robotych->roboMotors->rightSlower();
       break;
     case 'W':
       Serial.println("Starting sequence");
@@ -133,7 +133,7 @@ void loop()
       break;
     }
     if (isUserControl) {
-      robotych->motorState.controlState = ControlState::UserControl;
+      robotych->roboMotors->motorState.controlState = ControlState::UserControl;
     }
     Serial.println((char) serialValue);
   }
