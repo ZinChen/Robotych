@@ -69,8 +69,10 @@ void loop()
 {
   delay(100);
 
-  if (robotych->currentState.actionsCount > 0 && robotych->roboMotors->motorState.controlState == ControlState::SelfControl) {
-    robotych->checkAndUpdateCurrentAction();
+  if (robotych->roboAction->currentState.actionsCount > 0
+    && robotych->roboMotors->motorState.controlState == ControlState::SelfControl
+  ) {
+    robotych->roboAction->checkAndUpdateCurrentAction();
   }
 
   unsigned long currentTime = millis();
@@ -125,7 +127,7 @@ void loop()
       break;
     case 'W':
       Serial.println("Starting sequence");
-      robotych->startActionSequence(testActionSequence, sizeof(testActionSequence)/sizeof(*testActionSequence));
+      robotych->roboAction->startActionSequence(testActionSequence, sizeof(testActionSequence)/sizeof(*testActionSequence));
       isUserControl = false;
       break;
     default:
