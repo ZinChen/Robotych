@@ -56,7 +56,7 @@ void setup()
   headPins.distanceInput = USI;
   headPins.distanceOutput = USO;
   robotych = new Robotych(motorPins, headPins);
-  robotych->roboMotors->defaultSpeed(130, 130);
+  robotych->roboMotors->defaultSpeed(180, 180);
   Serial.begin(9600);
   delay(1000);
   testActionSequence[0] = testActionState;

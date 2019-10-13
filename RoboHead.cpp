@@ -34,15 +34,17 @@ long RoboHead::measureDistance()
 long RoboHead::averageDistance(int times)
 {
   int result = 0;
+  int countedTimes = 0;
   for (int i = 0; i < times; i++)
   {
     measureDistance();
     if (!distanceUnknown()) {
       result += headState.distance;
+      countedTimes++;
     }
   }
 
-  headState.distance = result / times;
+  headState.distance = result / countedTimes;
 
   if (headState.distance == 0)
   {
