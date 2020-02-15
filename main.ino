@@ -17,26 +17,6 @@ unsigned long checkDistanceTimePeriod = 100;
 unsigned long lastDistanceCheckTime = 0;
 unsigned long time;
 
-ActionState testActionState = {
-  500,
-  MotorPairState::Forward,
-  MotorPairState::Backward,
-  150,
-  150,
-  "Test"
-};
-
-ActionState testActionState2 = {
-  500,
-  MotorPairState::Backward,
-  MotorPairState::Forward,
-  150,
-  150,
-  "Test2"
-};
-
-ActionState testActionSequence[4];
-
 void measureTimeInterval(String name)
 {
   unsigned long currentTime = millis();
@@ -59,10 +39,6 @@ void setup()
   robotych->roboMotors->defaultSpeed(180, 180);
   Serial.begin(9600);
   delay(1000);
-  testActionSequence[0] = testActionState;
-  testActionSequence[1] = testActionState2;
-  testActionSequence[2] = testActionState;
-  testActionSequence[3] = testActionState2;
 }
 
 void loop()
@@ -74,6 +50,8 @@ void loop()
   ) {
     robotych->roboAction->checkAndUpdateCurrentAction();
   }
+
+  // replace with robotych->roboHead->trackDistance()
 
   unsigned long currentTime = millis();
   if (currentTime - lastDistanceCheckTime > checkDistanceTimePeriod)
@@ -98,36 +76,38 @@ void loop()
     bool isUserControl = true;
     switch (serialValue)
     {
-    case 'U':
+    case 'u':
       robotych->roboMotors->forward();
       break;
-    case 'D':
+    case 'd':
       robotych->roboMotors->back();
       break;
-    case 'L':
+    case 'l':
       robotych->roboMotors->left();
       break;
-    case 'R':
+    case 'r':
       robotych->roboMotors->right();
       break;
-    case 'S':
+    case 's':
       robotych->roboMotors->stop();
       break;
-    case 'Q':
+    case 'q':
       robotych->roboMotors->leftFaster();
       break;
-    case 'Z':
+    case 'z':
       robotych->roboMotors->leftSlower();
       break;
-    case 'E':
+    case 'e':
       robotych->roboMotors->rightFaster();
       break;
-    case 'C':
+    case 'c':
       robotych->roboMotors->rightSlower();
       break;
-    case 'W':
+    case 'w':
       Serial.println("Starting sequence");
-      robotych->roboAction->startActionSequence(testActionSequence, sizeof(testActionSequence)/sizeof(*testActionSequence));
+      robotych->roboAction->startTestAction(); // this is should work
+      // robotych->roboAction->actionSets->getTestActionSequence();
+      // robotych->roboAction->startActionSequence(testsActionSequence, sizeof(testActionSequence)/sizeof(*testActionSequence));
       isUserControl = false;
       break;
     default:

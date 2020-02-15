@@ -31,6 +31,8 @@ class RoboHead
     long averageDistance(int);
     bool distanceLessThan(int);
     bool distanceUnknown();
+    void trackDistance();
+    // TODO: void measure distance and stop here
 
     HeadState headState;
   private:

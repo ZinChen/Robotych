@@ -1,26 +1,9 @@
-#ifndef RoboAction_h
-#define RoboAction_h
+#ifndef roboaction_h
+#define roboaction_h
 
 #include "RoboMotors.h"
-
-struct ActionState
-{
-  int actionDuration;
-  MotorPairState leftMotorPairState;
-  MotorPairState rightMotorPairState;
-  int leftMotorPower;
-  int rightMotorPower;
-  char actionName[30];
-};
-
-struct CurrentState
-{
-  ActionState currentAction;
-  unsigned long actionStartTime;
-  int actionIndex;
-  int actionsCount;
-};
-
+#include "ActionState.h"
+#include "RoboActionSets.h"
 
 class RoboAction
 {
@@ -29,8 +12,10 @@ class RoboAction
     void checkAndUpdateCurrentAction();
     void startActionSequence(ActionState[], int);
     void initCurrentAction();
+    void startTestAction();
     CurrentState currentState;
     ActionState * actionSequence;
+    RoboActionSets * actionSets;
   private:
     RoboMotors * _roboMotors;
 };

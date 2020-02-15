@@ -1,15 +1,17 @@
-#include "RoboAction.h"
 #include "Arduino.h"
+#include "RoboAction.h"
 
 RoboAction::RoboAction(RoboMotors * roboMotors)
 {
   _roboMotors = roboMotors;
 
   currentState.actionsCount = 0;
+  actionSets = new RoboActionSets();
 }
 
 void RoboAction::startActionSequence(ActionState * actionState, int length)
 {
+  delete [] actionSequence;
   actionSequence = actionState;
   currentState.actionIndex = 0;
   currentState.actionsCount = length;
@@ -62,4 +64,19 @@ void RoboAction::initCurrentAction()
   Serial.print("currentState.currentActionDuration: ");
   Serial.println(currentState.currentAction.actionDuration);
   Serial.println("");
+}
+
+void RoboAction::startTestAction()
+{
+  // actionSequence =
+  // erase and create array
+  // pass it here and its length
+  // startActionSequence
+  int size = 4;
+  ActionState actionState[size];
+  actionState[0] = actionSets->testActionState;
+  actionState[1] = actionSets->testActionState2;
+  actionState[2] = actionSets->testActionState;
+  actionState[3] = actionSets->testActionState2;
+  startActionSequence(actionState, size);
 }
