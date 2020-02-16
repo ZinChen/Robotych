@@ -1,7 +1,7 @@
 #ifndef RoboActionSets_h
 #define RoboActionSets_h
 
-#include "Robotych.h"
+#include "RoboMotors.h"
 #include "ActionState.h"
 
 ActionState testActionState = {
@@ -20,17 +20,6 @@ ActionState testActionState2 = {
   150,
   150,
   "Test2"
-};
-
-ActionState testActionSequence[4];
-
-
-class RoboActionSets
-{
-  public:
-    RoboActionSets();
-    ActionState testActionState;
-    ActionState testActionState2;
 };
 
 #endif

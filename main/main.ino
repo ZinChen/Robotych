@@ -45,13 +45,16 @@ void loop()
 {
   delay(100);
 
+  // TODO: move to Robotych.cpp as method
   if (robotych->roboAction->currentState.actionsCount > 0
     && robotych->roboMotors->motorState.controlState == ControlState::SelfControl
   ) {
     robotych->roboAction->checkAndUpdateCurrentAction();
   }
 
+  // TODO:
   // replace with robotych->roboHead->trackDistance()
+  // move trackDistance to Robotych.cpp
 
   unsigned long currentTime = millis();
   if (currentTime - lastDistanceCheckTime > checkDistanceTimePeriod)

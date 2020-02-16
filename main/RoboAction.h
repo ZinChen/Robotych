@@ -3,7 +3,7 @@
 
 #include "RoboMotors.h"
 #include "ActionState.h"
-#include "RoboActionSets.h"
+// #include "RoboActionSets.h"
 
 class RoboAction
 {
@@ -15,7 +15,12 @@ class RoboAction
     void startTestAction();
     CurrentState currentState;
     ActionState * actionSequence;
-    RoboActionSets * actionSets;
+    // ActionState testAction[4] = {
+    //   testActionState,
+    //   testActionState2,
+    //   testActionState,
+    //   testActionState2
+    // };
   private:
     RoboMotors * _roboMotors;
 };

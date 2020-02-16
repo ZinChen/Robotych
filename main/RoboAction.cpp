@@ -1,12 +1,12 @@
 #include "Arduino.h"
 #include "RoboAction.h"
+#include "RoboActionSets.h"
 
 RoboAction::RoboAction(RoboMotors * roboMotors)
 {
   _roboMotors = roboMotors;
 
   currentState.actionsCount = 0;
-  actionSets = new RoboActionSets();
 }
 
 void RoboAction::startActionSequence(ActionState * actionState, int length)
@@ -25,6 +25,9 @@ void RoboAction::checkAndUpdateCurrentAction()
 {
   unsigned long passedTime = millis() - currentState.actionStartTime;
   unsigned long duration = currentState.currentAction.actionDuration;
+
+  Serial.print("Action passed time: ");
+  Serial.println(passedTime);
 
   if (passedTime >= duration) {
     if (currentState.actionIndex + 1 < currentState.actionsCount) {
@@ -56,7 +59,11 @@ void RoboAction::initCurrentAction()
   );
   _roboMotors->applyMotorState();
 
-  Serial.print("New action: ");
+  Serial.println("New action: ");
+  Serial.println("actionSequence: ");
+  // Serial.println(actionSequence);
+  Serial.println(currentState.actionIndex);
+  Serial.println(sizeof(actionSequence));
   Serial.print("currentActionName: ");
   Serial.println(currentState.currentAction.actionName);
   Serial.print("currentState.actionIndex: ");
@@ -72,11 +79,18 @@ void RoboAction::startTestAction()
   // erase and create array
   // pass it here and its length
   // startActionSequence
+
+  // alternative use this
+  // testAction
+  // print('size of text action: ');
+  // println(sizeof(testAction));
+
+  ActionState actionState[] = {
+    testActionState,
+    testActionState2,
+    testActionState,
+    testActionState2
+  };
   int size = 4;
-  ActionState actionState[size];
-  actionState[0] = actionSets->testActionState;
-  actionState[1] = actionSets->testActionState2;
-  actionState[2] = actionSets->testActionState;
-  actionState[3] = actionSets->testActionState2;
   startActionSequence(actionState, size);
 }
