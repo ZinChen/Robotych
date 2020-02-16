@@ -108,9 +108,7 @@ void loop()
       break;
     case 'w':
       Serial.println("Starting sequence");
-      robotych->roboAction->startTestAction(); // this is should work
-      // robotych->roboAction->actionSets->getTestActionSequence();
-      // robotych->roboAction->startActionSequence(testsActionSequence, sizeof(testActionSequence)/sizeof(*testActionSequence));
+      robotych->roboAction->startAction("test");
       isUserControl = false;
       break;
     default:

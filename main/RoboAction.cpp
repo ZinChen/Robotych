@@ -11,7 +11,6 @@ RoboAction::RoboAction(RoboMotors * roboMotors)
 
 void RoboAction::startActionSequence(ActionState * actionState, int length)
 {
-  delete [] actionSequence;
   actionSequence = actionState;
   currentState.actionIndex = 0;
   currentState.actionsCount = length;
@@ -61,9 +60,7 @@ void RoboAction::initCurrentAction()
 
   Serial.println("New action: ");
   Serial.println("actionSequence: ");
-  // Serial.println(actionSequence);
   Serial.println(currentState.actionIndex);
-  Serial.println(sizeof(actionSequence));
   Serial.print("currentActionName: ");
   Serial.println(currentState.currentAction.actionName);
   Serial.print("currentState.actionIndex: ");
@@ -73,24 +70,11 @@ void RoboAction::initCurrentAction()
   Serial.println("");
 }
 
-void RoboAction::startTestAction()
+void RoboAction::startAction(const char * sequenceName)
 {
-  // actionSequence =
-  // erase and create array
-  // pass it here and its length
-  // startActionSequence
-
-  // alternative use this
-  // testAction
-  // print('size of text action: ');
-  // println(sizeof(testAction));
-
-  ActionState actionState[] = {
-    testActionState,
-    testActionState2,
-    testActionState,
-    testActionState2
-  };
-  int size = 4;
-  startActionSequence(actionState, size);
+  int size;
+  if (sequenceName == "test") {
+    size = sizeof(actionStateSequence)/sizeof(*actionStateSequence);
+    startActionSequence(actionStateSequence, size);
+  }
 }

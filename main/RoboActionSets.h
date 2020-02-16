@@ -22,4 +22,11 @@ ActionState testActionState2 = {
   "Test2"
 };
 
+  ActionState actionStateSequence[] = {
+    testActionState,
+    testActionState2,
+    testActionState,
+    testActionState2
+  };
+
 #endif
