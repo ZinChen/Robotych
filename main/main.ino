@@ -13,18 +13,6 @@ MotorPins motorPins;
 HeadPins headPins;
 Robotych * robotych;
 
-unsigned long checkDistanceTimePeriod = 100;
-unsigned long lastDistanceCheckTime = 0;
-unsigned long time;
-
-void measureTimeInterval(String name)
-{
-  unsigned long currentTime = millis();
-  unsigned long interval = currentTime - time;
-  time = currentTime;
-  Serial.println("Timer since last" + name + ": " + interval);
-}
-
 void setup()
 {
   motorPins.rightBack = IN1;
@@ -45,33 +33,9 @@ void loop()
 {
   delay(100);
 
-  // TODO: move to Robotych.cpp as method
-  if (robotych->roboAction->currentState.actionsCount > 0
-    && robotych->roboMotors->motorState.controlState == ControlState::SelfControl
-  ) {
-    robotych->roboAction->checkAndUpdateCurrentAction();
-  }
+  robotych->roboAction->checkAndUpdateCurrentAction();
 
-  // TODO:
-  // replace with robotych->roboHead->trackDistance()
-  // move trackDistance to Robotych.cpp
-
-  unsigned long currentTime = millis();
-  if (currentTime - lastDistanceCheckTime > checkDistanceTimePeriod)
-  {
-    robotych->roboHead->averageDistance(3);
-    if (robotych->roboHead->distanceLessThan(40) && robotych->roboMotors->isMovingForward())
-    {
-      robotych->roboMotors->motorState.controlState = ControlState::SelfControl;
-      robotych->roboMotors->stop();
-      Serial.print("Stopped on distance: ");
-      Serial.println(robotych->roboHead->headState.distance);
-    }
-    // measureTimeInterval("measure distance");
-    // Serial.print("Current distance: ");
-    // Serial.println(robotych->headState.distance);
-    lastDistanceCheckTime = currentTime;
-  }
+  robotych->trackDistance();
 
   if (Serial.available())
   {

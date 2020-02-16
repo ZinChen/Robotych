@@ -22,6 +22,12 @@ void RoboAction::startActionSequence(ActionState * actionState, int length)
 
 void RoboAction::checkAndUpdateCurrentAction()
 {
+  if (currentState.actionsCount <= 0
+    || _roboMotors->motorState.controlState != ControlState::SelfControl
+  ) {
+    return;
+  }
+
   unsigned long passedTime = millis() - currentState.actionStartTime;
   unsigned long duration = currentState.currentAction.actionDuration;
 

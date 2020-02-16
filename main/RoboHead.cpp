@@ -8,7 +8,6 @@ RoboHead::RoboHead(HeadPins headPins)
   pinMode(_headPins.distanceOutput, OUTPUT);
 
   headState.ultrasonicUnknownLimit = 2000;
-
 }
 
 /*

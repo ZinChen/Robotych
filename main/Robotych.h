@@ -10,12 +10,17 @@ class Robotych
 {
   public:
     Robotych(MotorPins, HeadPins);
+    void measureTimeInterval(String);
+    void trackDistance();
     RoboMotors * roboMotors;
     RoboHead * roboHead;
     RoboAction * roboAction;
   private:
     MotorPins _motorPins;
     HeadPins _headPins;
+    unsigned long lastDistanceCheckTime;
+    unsigned long checkDistanceTimePeriod;
+    unsigned long time;
 };
 
 #endif
