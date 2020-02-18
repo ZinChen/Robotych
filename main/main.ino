@@ -24,7 +24,7 @@ void setup()
   headPins.distanceInput = USI;
   headPins.distanceOutput = USO;
   robotych = new Robotych(motorPins, headPins);
-  robotych->roboMotors->defaultSpeed(120, 120);
+  robotych->roboMotors->defaultSpeed(150, 150);
   Serial.begin(9600);
   delay(1000);
 }
@@ -58,10 +58,18 @@ void loop()
       robotych->roboMotors->back();
       break;
     case 'l':
-      robotych->roboMotors->left();
+      if ( robotych->roboMotors->isMovingForward() || robotych->roboMotors->isMovingBackward()) {
+        robotych->roboMotors->steerLeft();
+      } else {
+        robotych->roboMotors->turnLeft();
+      }
       break;
     case 'r':
-      robotych->roboMotors->right();
+      if ( robotych->roboMotors->isMovingForward() || robotych->roboMotors->isMovingBackward() ) {
+        robotych->roboMotors->steerRight();
+      } else {
+       robotych->roboMotors->turnRight();
+      }
       break;
     case 's':
       robotych->roboMotors->stop();

@@ -1,6 +1,8 @@
 #ifndef RoboMotors_h
 #define RoboMotors_h
 
+const int LOWEST_SPEED = 110;
+const int HIGHEST_SPEED = 255;
 struct MotorPins
 {
   int leftFront;
@@ -41,8 +43,10 @@ class RoboMotors
     RoboMotors(MotorPins motorPins);
     void forward();
     void back();
-    void left();
-    void right();
+    void turnLeft();
+    void turnRight();
+    void steerLeft();
+    void steerRight();
     void stop();
     void leftForward();
     void leftBackward();
@@ -64,6 +68,9 @@ class RoboMotors
 
     MotorState motorState;
   private:
+    int _minSpeed(int);
+    int _maxSpeed(int);
+
     MotorPins _motorPins;
     int _currentLeftSpeed;
     int _currentRightSpeed;

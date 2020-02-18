@@ -33,28 +33,28 @@ void RoboMotors::back(void)
   rightBackward();
 }
 
-void RoboMotors::left(void)
+void RoboMotors::turnLeft(void)
 {
-  if (isMovingForward() || isMovingBackward()) {
-    applyCustomSpeed(_currentLeftSpeed * 0.9, motorState.rightMotorPower);
-  } else {
-    applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
-    leftBackward();
-    rightForward();
-  }
+  applyCustomSpeed(motorState.leftMotorPower * 0.85, motorState.rightMotorPower * 0.85);
+  leftBackward();
+  rightForward();
 }
 
-void RoboMotors::right(void)
+void RoboMotors::turnRight(void)
 {
+  applyCustomSpeed(motorState.leftMotorPower * 0.85, motorState.rightMotorPower * 0.85);
+  leftForward();
+  rightBackward();
+}
 
-  if (isMovingForward() || isMovingBackward()) {
-    applyCustomSpeed(motorState.leftMotorPower, _currentRightSpeed * 0.9);
-  } else {
-    applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
-    leftForward();
-    rightBackward();
-  }
+void RoboMotors::steerLeft()
+{
+  applyCustomSpeed(_minSpeed(_currentLeftSpeed * 0.6), _maxSpeed(_currentRightSpeed * 1.5));
+}
 
+void RoboMotors::steerRight()
+{
+  applyCustomSpeed(_maxSpeed(_currentLeftSpeed * 1.5), _minSpeed(_currentRightSpeed * 0.6));
 }
 
 void RoboMotors::stop(void)
@@ -164,7 +164,7 @@ void RoboMotors::applyCustomSpeed(int left, int right)
 void RoboMotors::leftFaster()
 {
   motorState.leftMotorPower += motorState.motorPowerStep;
-  motorState.leftMotorPower = motorState.leftMotorPower > 255 ? 255 : motorState.leftMotorPower;
+  motorState.leftMotorPower = _maxSpeed(motorState.leftMotorPower);
   applySpeed();
 
   Serial.print("Left motors get fast with value: ");
@@ -174,7 +174,7 @@ void RoboMotors::leftFaster()
 void RoboMotors::rightFaster()
 {
   motorState.rightMotorPower += motorState.motorPowerStep;
-  motorState.rightMotorPower = motorState.rightMotorPower > 255 ? 255 : motorState.rightMotorPower;
+  motorState.rightMotorPower = _maxSpeed(motorState.rightMotorPower);
   applySpeed();
 
   Serial.print("Right motors get fast with value: ");
@@ -184,7 +184,7 @@ void RoboMotors::rightFaster()
 void RoboMotors::leftSlower()
 {
   motorState.leftMotorPower -= motorState.motorPowerStep;
-  motorState.leftMotorPower = motorState.leftMotorPower > 0 ? motorState.leftMotorPower : 0;
+  motorState.leftMotorPower = _minSpeed(motorState.leftMotorPower);
   applySpeed();
 
   Serial.print("Left motors get slow with value: ");
@@ -194,7 +194,7 @@ void RoboMotors::leftSlower()
 void RoboMotors::rightSlower()
 {
   motorState.rightMotorPower -= motorState.motorPowerStep;
-  motorState.rightMotorPower = motorState.rightMotorPower > 0 ? motorState.rightMotorPower : 0;
+  motorState.rightMotorPower = _minSpeed(motorState.rightMotorPower);
   applySpeed();
 
   Serial.print("Right motors get slow with value: ");
@@ -211,4 +211,14 @@ bool RoboMotors::isMovingBackward()
 {
   return motorState.leftMotorState == MotorPairState::Backward
     && motorState.rightMotorState == MotorPairState::Backward;
+}
+
+int RoboMotors::_minSpeed(int speed)
+{
+  return speed > LOWEST_SPEED ? speed : LOWEST_SPEED;
+}
+
+int RoboMotors::_maxSpeed(int speed)
+{
+  return speed > HIGHEST_SPEED ? HIGHEST_SPEED : speed;
 }
