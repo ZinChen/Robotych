@@ -35,21 +35,30 @@ void RoboMotors::back(void)
 
 void RoboMotors::left(void)
 {
-  applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
-  leftBackward();
-  rightForward();
+  if (isMovingForward() || isMovingBackward()) {
+    applyCustomSpeed(_currentLeftSpeed * 0.9, motorState.rightMotorPower);
+  } else {
+    applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
+    leftBackward();
+    rightForward();
+  }
 }
 
 void RoboMotors::right(void)
 {
-  applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
-  leftForward();
-  rightBackward();
+
+  if (isMovingForward() || isMovingBackward()) {
+    applyCustomSpeed(motorState.leftMotorPower, _currentRightSpeed * 0.9);
+  } else {
+    applyCustomSpeed(motorState.leftMotorPower * 0.75, motorState.rightMotorPower * 0.75);
+    leftForward();
+    rightBackward();
+  }
+
 }
 
 void RoboMotors::stop(void)
 {
-  // applySpeed();
   leftStop();
   rightStop();
 }
@@ -140,12 +149,16 @@ void RoboMotors::applySpeed(void)
 {
   analogWrite(_motorPins.leftPower, motorState.leftMotorPower);
   analogWrite(_motorPins.rightPower, motorState.rightMotorPower);
+  _currentLeftSpeed = motorState.leftMotorPower;
+  _currentRightSpeed = motorState.rightMotorPower;
 }
 
 void RoboMotors::applyCustomSpeed(int left, int right)
 {
   analogWrite(_motorPins.leftPower, left);
   analogWrite(_motorPins.rightPower, right);
+  _currentLeftSpeed = left;
+  _currentRightSpeed = right;
 }
 
 void RoboMotors::leftFaster()
@@ -192,4 +205,10 @@ bool RoboMotors::isMovingForward()
 {
   return motorState.leftMotorState == MotorPairState::Forward
     && motorState.rightMotorState == MotorPairState::Forward;
+}
+
+bool RoboMotors::isMovingBackward()
+{
+  return motorState.leftMotorState == MotorPairState::Backward
+    && motorState.rightMotorState == MotorPairState::Backward;
 }

@@ -24,13 +24,21 @@ void setup()
   headPins.distanceInput = USI;
   headPins.distanceOutput = USO;
   robotych = new Robotych(motorPins, headPins);
-  robotych->roboMotors->defaultSpeed(180, 180);
+  robotych->roboMotors->defaultSpeed(120, 120);
   Serial.begin(9600);
   delay(1000);
 }
 
 void loop()
 {
+  // TODO:
+  //  - add optical sensor, think about merging Ultrasonic and Optical sensor results
+  //  - if is moving, then left and right increases speed of related wheelpair
+  //  - add scanning as Guyver fan, if there is no free way in range, turn on 90 degrees approximately
+
+  // think about use of black line detectors, if it's founded, then use it
+  // add button switch to state for customize speed of each movement
+
   delay(100);
 
   robotych->roboAction->checkAndUpdateCurrentAction();

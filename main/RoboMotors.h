@@ -60,10 +60,13 @@ class RoboMotors
     void rightSlower();
     void slower();
     bool isMovingForward();
+    bool isMovingBackward();
 
     MotorState motorState;
   private:
     MotorPins _motorPins;
+    int _currentLeftSpeed;
+    int _currentRightSpeed;
 };
 
 #endif
