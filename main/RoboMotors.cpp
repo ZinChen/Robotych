@@ -17,6 +17,21 @@ RoboMotors::RoboMotors(MotorPins motorPins)
   pinMode(_motorPins.rightPower, OUTPUT);
 }
 
+void RoboMotors::toggleSpeedControlState()
+{
+  if (motorState.controlState != ControlState::SpeedControl) {
+    Serial.println("Switch to speed control");
+    motorState.controlState = ControlState::SpeedControl;
+  } else {
+    Serial.println("Switch to user control");
+    motorState.controlState = ControlState::UserControl;
+  }
+}
+
+bool RoboMotors::isSpeedControlState()
+{
+  return motorState.controlState == ControlState::SpeedControl;
+}
 
 // Basic movements
 void RoboMotors::forward(void)

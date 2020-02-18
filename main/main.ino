@@ -33,11 +33,11 @@ void loop()
 {
   // TODO:
   //  - add optical sensor, think about merging Ultrasonic and Optical sensor results
-  //  - if is moving, then left and right increases speed of related wheelpair
+  //  - if is moving, then left and right increases speed of related wheelpair +
   //  - add scanning as Guyver fan, if there is no free way in range, turn on 90 degrees approximately
 
   // think about use of black line detectors, if it's founded, then use it
-  // add button switch to state for customize speed of each movement
+  // add button switch to state for customize speed of each movement +
 
   delay(100);
 
@@ -52,20 +52,38 @@ void loop()
     switch (serialValue)
     {
     case 'u':
-      robotych->roboMotors->forward();
+      if (robotych->roboMotors->isSpeedControlState()) {
+        robotych->roboMotors->leftFaster();
+        robotych->roboMotors->rightFaster();
+        isUserControl = false;
+      } else {
+        robotych->roboMotors->forward();
+      }
       break;
     case 'd':
-      robotych->roboMotors->back();
+      if (robotych->roboMotors->isSpeedControlState()) {
+        robotych->roboMotors->leftSlower();
+        robotych->roboMotors->rightSlower();
+        isUserControl = false;
+      } else {
+        robotych->roboMotors->back();
+      }
       break;
     case 'l':
-      if ( robotych->roboMotors->isMovingForward() || robotych->roboMotors->isMovingBackward()) {
+      if (robotych->roboMotors->isSpeedControlState()) {
+        robotych->roboMotors->leftFaster();
+        isUserControl = false;
+      } else if ( robotych->roboMotors->isMovingForward() || robotych->roboMotors->isMovingBackward()) {
         robotych->roboMotors->steerLeft();
       } else {
         robotych->roboMotors->turnLeft();
       }
       break;
     case 'r':
-      if ( robotych->roboMotors->isMovingForward() || robotych->roboMotors->isMovingBackward() ) {
+      if (robotych->roboMotors->isSpeedControlState()) {
+        robotych->roboMotors->rightFaster();
+        isUserControl = false;
+      } else if (robotych->roboMotors->isMovingForward() || robotych->roboMotors->isMovingBackward()) {
         robotych->roboMotors->steerRight();
       } else {
        robotych->roboMotors->turnRight();
@@ -74,23 +92,14 @@ void loop()
     case 's':
       robotych->roboMotors->stop();
       break;
-    case 'q':
-      robotych->roboMotors->leftFaster();
-      break;
-    case 'z':
-      robotych->roboMotors->leftSlower();
-      break;
-    case 'e':
-      robotych->roboMotors->rightFaster();
-      break;
-    case 'c':
-      robotych->roboMotors->rightSlower();
-      break;
     case 'w':
       Serial.println("Starting sequence");
       robotych->roboAction->startAction("test");
       isUserControl = false;
       break;
+    case 'p':
+      robotych->roboMotors->toggleSpeedControlState();
+      isUserControl = false;
     default:
       isUserControl = false;
       break;

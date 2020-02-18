@@ -18,6 +18,7 @@ enum class ControlState
   SelfControl,
   UserControl,
   MoveControl,
+  SpeedControl
 };
 
 enum class MotorPairState
@@ -41,6 +42,8 @@ class RoboMotors
 {
   public:
     RoboMotors(MotorPins motorPins);
+    void toggleSpeedControlState();
+    bool isSpeedControlState();
     void forward();
     void back();
     void turnLeft();
